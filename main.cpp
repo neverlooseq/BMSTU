@@ -10,6 +10,6 @@ struct Test
 };
 
 int main() {
-    cout<<sizeof(Test)<<endl;
+    cout<<sizeof(Test)<<endl; // 8
     return 0;
 }
