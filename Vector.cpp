@@ -1,10 +1,10 @@
 #include "Vector.h"
 #include <cstring>
 
-// Конструктор без параметров
+using namespace std;
+
 Vector::Vector() : data(nullptr), size(0) {}
 
-// Конструктор из массива
 Vector::Vector(const int* arr, int n) : data(nullptr), size(0) {
     if (n > 0 && arr != nullptr) {
         size = n;
@@ -14,9 +14,8 @@ Vector::Vector(const int* arr, int n) : data(nullptr), size(0) {
     }
 }
 
-// Конструктор копирования
 Vector::Vector(const Vector& other) : data(nullptr), size(0) {
-    std::cout << "[Конструктор копирования] size = " << other.size << std::endl;
+    cout << "[Конструктор копирования] size = " << other.size << endl;
     size = other.size;
     if (size > 0) {
         data = new int[size];
@@ -25,9 +24,8 @@ Vector::Vector(const Vector& other) : data(nullptr), size(0) {
     }
 }
 
-// Конструктор перемещения
 Vector::Vector(Vector&& other) noexcept : data(nullptr), size(0) {
-    std::cout << "[Конструктор перемещения] size = " << other.size << std::endl;
+    cout << "[Конструктор перемещения] size = " << other.size << endl;
     data = other.data;
     size = other.size;
     other.data = nullptr;
@@ -40,7 +38,7 @@ Vector::~Vector() {
 
 int& Vector::operator[](int index) {
     if (index < 0 || index >= size) {
-        std::cerr << "Ошибка: индекс " << index << " вне диапазона [0, " << size - 1 << "]\n";
+        cerr << "Ошибка: индекс " << index << " вне диапазона [0, " << size - 1 << "]" << endl;
         static int dummy = 0;
         return dummy;
     }
@@ -49,7 +47,7 @@ int& Vector::operator[](int index) {
 
 const int& Vector::operator[](int index) const {
     if (index < 0 || index >= size) {
-        std::cerr << "Ошибка: индекс " << index << " вне диапазона [0, " << size - 1 << "]\n";
+        cerr << "Ошибка: индекс " << index << " вне диапазона [0, " << size - 1 << "]" << endl;
         static int dummy = 0;
         return dummy;
     }
@@ -57,7 +55,7 @@ const int& Vector::operator[](int index) const {
 }
 
 Vector& Vector::operator=(const Vector& other) {
-    std::cout << "[Присваивание с копированием] size = " << other.size << std::endl;
+    cout << "[Присваивание с копированием] size = " << other.size << endl;
     if (this == &other)
         return *this;
 
@@ -73,7 +71,7 @@ Vector& Vector::operator=(const Vector& other) {
 }
 
 Vector& Vector::operator=(Vector&& other) noexcept {
-    std::cout << "[Присваивание с перемещением] size = " << other.size << std::endl;
+    cout << "[Присваивание с перемещением] size = " << other.size << endl;
     if (this == &other)
         return *this;
 
@@ -95,11 +93,10 @@ bool Vector::operator<(const int* other) const {
         if (data[i] > other[i])
             return false;
     }
-    return false; // все элементы равны
+    return false;
 }
 
-// Вывод в поток
-std::ostream& operator<<(std::ostream& os, const Vector& v) {
+ostream& operator<<(ostream& os, const Vector& v) {
     os << "Vector[" << v.size << "]: (";
     for (int i = 0; i < v.size; ++i) {
         os << v.data[i];
@@ -109,7 +106,7 @@ std::ostream& operator<<(std::ostream& os, const Vector& v) {
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Vector& v) {
+istream& operator>>(istream& is, Vector& v) {
     int n;
     if (!(is >> n)) return is;
 
