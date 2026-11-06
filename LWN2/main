@@ -1,0 +1,171 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <filesystem>
+
+using namespace std;
+namespace fs = filesystem;
+
+struct PassagersFly {
+    string model;
+    double maxWeight, maxSpeed, maxDistance;
+    int maxPassegers;
+};
+
+void writeText(const vector<PassagersFly>& pf) {
+    ofstream fout("planes.txt");
+
+    fout << pf.size() << endl;
+
+    for (const auto& p : pf) {
+        fout << quoted(p.model) << endl;
+        fout << p.maxWeight << endl;
+        fout << p.maxSpeed << endl;
+        fout << p.maxDistance << endl;
+        fout << p.maxPassegers << endl;
+    }
+
+    fout.close();
+}
+
+void readText(vector<PassagersFly>& pf) {
+    ifstream fin("planes.txt");
+
+    pf.clear();
+
+    size_t n;
+    fin >> n;
+
+    for (size_t i = 0; i < n; i++) {
+        PassagersFly p;
+
+        fin >> quoted(p.model);
+        fin >> p.maxWeight;
+        fin >> p.maxSpeed;
+        fin >> p.maxDistance;
+        fin >> p.maxPassegers;
+
+        pf.push_back(p);
+    }
+
+    fin.close();
+}
+
+void writeBinary(const vector<PassagersFly>& pf) {
+    ofstream fout("planes.bin", ios::binary);
+
+    uint64_t n = pf.size();
+    fout.write((char*)&n, sizeof(n));
+
+    for (const auto& p : pf) {
+        uint64_t len = p.model.size();
+
+        fout.write((char*)&len, sizeof(len));
+        fout.write(p.model.data(), len);
+
+        fout.write((char*)&p.maxWeight, sizeof(p.maxWeight));
+        fout.write((char*)&p.maxSpeed, sizeof(p.maxSpeed));
+        fout.write((char*)&p.maxDistance, sizeof(p.maxDistance));
+        fout.write((char*)&p.maxPassegers, sizeof(p.maxPassegers));
+    }
+
+    fout.close();
+}
+
+void readBinary(vector<PassagersFly>& pf) {
+    ifstream fin("planes.bin", ios::binary);
+
+    pf.clear();
+
+    uint64_t n;
+    fin.read((char*)&n, sizeof(n));
+
+    for (uint64_t i = 0; i < n; i++) {
+        PassagersFly p;
+        uint64_t len;
+
+        fin.read((char*)&len, sizeof(len));
+
+        p.model.resize(len);
+
+        if (len > 0) {
+            fin.read(&p.model[0], len);
+        }
+
+        fin.read((char*)&p.maxWeight, sizeof(p.maxWeight));
+        fin.read((char*)&p.maxSpeed, sizeof(p.maxSpeed));
+        fin.read((char*)&p.maxDistance, sizeof(p.maxDistance));
+        fin.read((char*)&p.maxPassegers, sizeof(p.maxPassegers));
+
+        pf.push_back(p);
+    }
+
+    fin.close();
+}
+
+void printPlanes(const vector<PassagersFly>& pf) {
+    for (const auto& p : pf) {
+        cout << "Модель: " << p.model << endl;
+        cout << "Максимальная высота: " << p.maxWeight << endl;
+        cout << "Максимальная скорость: " << p.maxSpeed << endl;
+        cout << "Максимальная дальность: " << p.maxDistance << endl;
+        cout << "Максимальное число пассажиров: " << p.maxPassegers << endl;
+        cout << endl;
+    }
+}
+
+void compareFiles() {
+    uintmax_t textSize = fs::file_size("planes.txt");
+    uintmax_t binarySize = fs::file_size("planes.bin");
+
+    cout << "Размер текстового файла: " << textSize << " байт" << endl;
+    cout << "Размер бинарного файла: " << binarySize << " байт" << endl;
+
+    if (textSize > binarySize) {
+        cout << "Бинарный файл меньше на "
+             << textSize - binarySize << " байт." << endl;
+    }
+    else if (binarySize > textSize) {
+        cout << "Текстовый файл меньше на "
+             << binarySize - textSize << " байт." << endl;
+    }
+    else {
+        cout << "Размеры файлов одинаковые." << endl;
+    }
+}
+
+int main() {
+    system("chcp 65001 > nul");
+
+    vector<PassagersFly> pf;
+    cout << "Введите количество самолетов: ";
+    int n; cin >> n;
+    cin.ignore();
+    for (int i = 0; i < n; i++) {
+        PassagersFly p;
+
+        cout << "Модель самолета: " << endl;
+        getline(cin, p.model);
+
+        cout << "Максимальная высота: ";
+        cin >> p.maxWeight;
+
+        cout << "Максимальная скорость: ";
+        cin >> p.maxSpeed;
+
+        cout << "Максимальная дальность: ";
+        cin >> p.maxDistance;
+
+        cout << "Максимальное число пассажиров: ";
+        cin >> p.maxPassegers;
+
+        cin.ignore();
+
+        pf.push_back(p);
+    }
+    writeText(pf);
+    writeBinary(pf);
+
+    cout << "Файлы созданы" << endl;
+}
